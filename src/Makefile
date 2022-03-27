@@ -1,16 +1,20 @@
 CC=gcc
+CFLAGS=-g
 u2spewfoo_CFLAGS=-g -O2 -DSF_VISIBILITY -fvisibility=hidden -Wall
 #LIBS=-lnghttp2 -lz -ldaq_static -ldumbnet -lpcre -lpcap -lnsl -lm -lm  -lcrypto -ldl -L/usr/local/lib -ldaq_static_modules  -lsfbpf -lpcap -lsfbpf -lpcap -lz -llzma -lpthread -lpthread -lpthread
+LIBS=-lmysqlclient
 
 build: main
 
-main: u2spewfoo.o main.o
+main: u2spewfoo.o main.o snortdb.o
 	$(CC) $^ -o $@ $(LIBS)
 
 main.o: main.c
 
 u2spewfoo.o: u2spewfoo.c
-	$(CC) -c $^ $(LIBS) $(u2spewfoo_CFLAGS)
+	$(CC) -c $^ $(u2spewfoo_CFLAGS)
+
+snortdb.o: snortdb.c
 
 clean:
 	rm *.o main

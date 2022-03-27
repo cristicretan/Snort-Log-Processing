@@ -84,18 +84,6 @@ void inet_ntop(int family, const void *ip_raw, char *buf, int bufsize) {
 }
 #endif
 
-typedef struct _record {
-    uint32_t type;
-    uint32_t length;
-    uint8_t *data;
-} u2record;
-
-typedef struct _u2iterator {
-    FILE *file;
-    char *filename;
-    u2record current;
-} u2iterator;
-
 static long s_pos = 0, s_off = 0;
 
 #define TO_IP(x) x >> 24, (x >> 16) & 0xff, (x >> 8) & 0xff, x & 0xff
@@ -129,7 +117,7 @@ static inline void free_iterator(u2iterator *it) {
     if(it) free(it);
 }
 
-static int get_record(u2iterator *it, u2record *record) {
+int get_record(u2iterator *it, u2record *record) {
     uint32_t bytes_read;
     uint8_t *tmp;
 

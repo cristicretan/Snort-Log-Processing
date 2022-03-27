@@ -130,8 +130,6 @@ typedef struct _Unified2IDSEventIPv6
 #endif /* defined(FEAT_OPEN_APPID) */
 } Unified2IDSEventIPv6;
 
-
-
 //UNIFIED2_PACKET = type 2
 typedef struct _Serial_Unified2Packet
 {

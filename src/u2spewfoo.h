@@ -1,6 +1,5 @@
-// #ifndef __U2SPEWFOO_H__
-// #define __U2SPEWFOO_H__
-
+#ifndef __U2SPEWFOO_H__
+#define __U2SPEWFOO_H__
 
 #include <stdio.h>
 
@@ -19,6 +18,7 @@
 #include<uuid/uuid.h>
 #endif
 
+#include "config.h"
 #include "Unified2_common.h"
 
 #define SUCCESS 314159265
@@ -35,16 +35,19 @@ typedef unsigned char uint8_t;
 void inet_ntop(int family, const void *ip_raw, char *buf, int bufsize);
 #endif
 
-// void extradata_dump(u2record *record);
-// void event_dump(u2record *record);
-// void event6_dump(u2record *record);
-// void event2_dump(u2record *record);
-// void event3_dump(u2record *record);
-// void event2_6_dump(u2record *record);
-// void event3_6_dump(u2record *record);
-// void appid_dump(u2record *record);
-// void LogBuffer (const uint8_t* p, unsigned n);
-// void packet_dump(u2record *record);
+typedef struct _record {
+    uint32_t type;
+    uint32_t length;
+    uint8_t *data;
+} u2record;
+
+typedef struct _u2iterator {
+    FILE *file;
+    char *filename;
+    u2record current;
+} u2iterator;
+
+int get_record(u2iterator *it, u2record *record);
 int u2dump(char *file);
 
-// #endif
+#endif
