@@ -98,8 +98,156 @@ void finish_with_error(MYSQL *con)
     exit(1);
 }
 
+static void event_to_db(u2record *record, MYSQL *con)
+{
+    printf("event_to_db\n");
+    uint8_t *field;
+    int i;
+    Serial_Unified2IDSEvent_legacy event;
+
+     memcpy(&event, record->data, sizeof(Serial_Unified2IDSEvent_legacy));
+
+    /* network to host ordering */
+    /* In the event structure, only the last 40 bits are not 32 bit fields */
+    /* The first 11 fields need to be convertted */
+    field = (uint8_t*)&event;
+    for(i=0; i<11; i++, field+=4) {
+        *(uint32_t*)field = ntohl(*(uint32_t*)field);
+    }
+
+    /* last 3 fields, with the exception of the last most since it's just one byte */
+    *(uint16_t*)field = ntohs(*(uint16_t*)field); /* sport_itype */
+    field += 2;
+    *(uint16_t*)field = ntohs(*(uint16_t*)field); /* dport_icode */
+    /* done changing the network ordering */
+
+    char query[QUERY_LEN];
+
+    if (last_event_id != 1) {
+        if (mysql_query(con, "SELECT MAX(Pk_Event_Id) from snortdb.events")) {
+            finish_with_error(con);
+        }
+
+        MYSQL_RES *result = mysql_store_result(con);
+
+        if (result == NULL) {
+            finish_with_error(con);
+        }
+
+        MYSQL_ROW row = mysql_fetch_row(result);
+        last_event_id = atoi(row[0]);
+        mysql_free_result(result);
+    }
+
+    memset(query, 0, QUERY_LEN);
+
+    sprintf(query,
+        "INSERT INTO events (sensor_id, event_id, event_second, event_microsecond, signature_id, "
+        "generator_id, signature_revision, classification_id, "
+        "priority_id, ip_source, ip_destination, sport_itype, "
+        "dport_icode, protocol, impact_flag, blocked, rules_Pk_Rule_Id) "
+        "VALUES (%u, %u, %u, %u, "
+        "%u, %u, %u, %u, "
+        "%u, \"%u.%u.%u.%u\", \"%u.%u.%u.%u\", "
+        "%u, %u, %u, %u, %u, %lu)",
+        event.sensor_id, event.event_id,
+        event.event_second, event.event_microsecond,
+        event.signature_id, event.generator_id,
+        event.signature_revision, event.classification_id,
+        event.priority_id, TO_IP(event.ip_source),
+        TO_IP(event.ip_destination), event.sport_itype,
+        event.dport_icode, event.protocol,
+        event.impact_flag, event.blocked,
+        last_event_id);
+
+    if (mysql_query(con, query)) {
+        finish_with_error(con);
+    }
+
+    return;
+}
+
+static void event2_to_db(u2record *record, MYSQL *con)
+{
+    printf("event2_to_db\n");
+    uint8_t *field;
+    int i;
+
+    Serial_Unified2IDSEvent event;
+
+    memcpy(&event, record->data, sizeof(Serial_Unified2IDSEvent));
+
+    /* network to host ordering */
+    /* In the event structure, only the last 40 bits are not 32 bit fields */
+    /* The first 11 fields need to be convertted */
+    field = (uint8_t*)&event;
+    for(i=0; i<11; i++, field+=4) {
+        *(uint32_t*)field = ntohl(*(uint32_t*)field);
+    }
+
+    /* last 3 fields, with the exception of the last most since it's just one byte */
+    *(uint16_t*)field = ntohs(*(uint16_t*)field); /* sport_itype */
+    field += 2;
+    *(uint16_t*)field = ntohs(*(uint16_t*)field); /* dport_icode */
+    field +=6;
+    *(uint32_t*)field = ntohl(*(uint32_t*)field); /* mpls_label */
+    field += 4;
+    /* policy_id and vlanid */
+    for(i=0; i<2; i++, field+=2) {
+        *(uint16_t*)field = ntohs(*(uint16_t*)field);
+    }
+    /* done changing the network ordering */
+
+    char query[QUERY_LEN];
+
+    if (last_event_id != 1) {
+        if (mysql_query(con, "SELECT MAX(Pk_Event_Id) from snortdb.events")) {
+            finish_with_error(con);
+        }
+
+        MYSQL_RES *result = mysql_store_result(con);
+
+        if (result == NULL) {
+            finish_with_error(con);
+        }
+
+        MYSQL_ROW row = mysql_fetch_row(result);
+        last_event_id = atoi(row[0]);
+        mysql_free_result(result);
+    }
+
+    memset(query, 0, QUERY_LEN);
+
+    sprintf(query,
+        "INSERT INTO events (sensor_id, event_id, event_second, event_microsecond, signature_id, "
+        "generator_id, signature_revision, classification_id, "
+        "priority_id, ip_source, ip_destination, sport_itype, "
+        "dport_icode, protocol, impact_flag, blocked, mpls_label, "
+        "vlanId, pad2, rules_Pk_Rule_Id) "
+        "VALUES (%u, %u, %u, %u, "
+        "%u, %u, %u, %u, "
+        "%u, \"%u.%u.%u.%u\", \"%u.%u.%u.%u\", "
+        "%u, %u, %u, %u, %u, %u, %u, %u, %lu)",
+        event.sensor_id, event.event_id,
+        event.event_second, event.event_microsecond,
+        event.signature_id, event.generator_id,
+        event.signature_revision, event.classification_id,
+        event.priority_id, TO_IP(event.ip_source),
+        TO_IP(event.ip_destination), event.sport_itype,
+        event.dport_icode, event.protocol,
+        event.impact_flag, event.blocked, event.mpls_label, event.vlanId,
+        event.pad2, last_event_id);
+
+    if (mysql_query(con, query)) {
+        finish_with_error(con);
+    }
+
+    return;
+}
+
 static void event3_to_db(u2record *record, MYSQL *con)
 {
+    printf("event3_to_db\n");
     uint8_t *field;
     int i;
 
@@ -500,6 +648,9 @@ static u2iterator *new_iterator(char *filename) {
         return NULL;
     }
 
+    fstat(fileno(f), &finfo);
+    filesize = finfo.st_size;
+
     ret->file = f;
     ret->filename = strdup(filename);
     return ret;
@@ -509,6 +660,31 @@ static inline void free_iterator(u2iterator *it) {
     if(it->file) fclose(it->file);
     if(it->filename) free(it->filename);
     if(it) free(it);
+}
+
+void add_records(u2iterator *it, u2record *record, MYSQL *con)
+{
+    while (get_record(it, record) == SUCCESS) {
+        if (record->type == UNIFIED2_IDS_EVENT) {
+            event_to_db(record, con);
+        } else if (record->type == UNIFIED2_IDS_EVENT_VLAN) {
+            event2_to_db(record, con);
+        } else if (record->type == UNIFIED2_PACKET) {
+            packet_to_db(record, con);
+        } else if (record->type == UNIFIED2_IDS_EVENT_IPV6) {
+            event6_to_db(record, con);
+        } else if (record->type == UNIFIED2_IDS_EVENT_IPV6_VLAN) {
+            event2_6_to_db(record, con);
+        } else if (record->type == UNIFIED2_EXTRA_DATA) {
+            printf("Extradata not implemented yet\n");
+        } else if (record->type == UNIFIED2_IDS_EVENT_APPID) {
+            event3_to_db(record, con);
+        } else if (record->type == UNIFIED2_IDS_EVENT_APPID_IPV6) {
+            event3_6_to_db(record, con);
+        } else if (record->type == UNIFIED2_IDS_EVENT_APPSTAT) {
+            printf("Appid not implemented yet\n");
+        }
+    }
 }
 
 int u2_to_db(char *file, MYSQL *con)
@@ -523,50 +699,20 @@ int u2_to_db(char *file, MYSQL *con)
         return -1;
     }
 
-    while (get_record(it, &record) == SUCCESS) {
-        if (record.type == UNIFIED2_IDS_EVENT_APPID) {
-            event3_to_db(&record, con);
-        } else if (record.type == UNIFIED2_PACKET) {
-            packet_to_db(&record, con);
+    add_records(it, &record, con);
+
+    while (1) {
+        sleep(5);
+        fstat(fileno(it->file), &finfo);
+        if (filesize != finfo.st_size) {
+            add_records(it, &record, con);
         }
+        filesize = finfo.st_size;
     }
 
-// TBD: the rest of the packet types
-//     while( get_record(it, &record) == SUCCESS ) {
-//         if(record.type == UNIFIED2_IDS_EVENT) {
-//             event_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_IDS_EVENT_VLAN) {
-//             event2_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_PACKET) {
-//             packet_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_IDS_EVENT_IPV6) {
-//             event6_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_IDS_EVENT_IPV6_VLAN) {
-//             event2_6_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_EXTRA_DATA) {
-//             extradata_dump(&record);
-//         }
-// #if defined(FEAT_OPEN_APPID)
-//         else if(record.type == UNIFIED2_IDS_EVENT_APPID) {
-//             event3_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_IDS_EVENT_APPID_IPV6) {
-//             event3_6_dump(&record);
-//         }
-//         else if(record.type == UNIFIED2_IDS_EVENT_APPSTAT) {
-//             appid_dump(&record);
-//         }
-// #endif /* defined(FEAT_OPEN_APPID) */
-//     }
-
-//     free_iterator(it);
-//     if(record.data)
-//         free(record.data);
+    free_iterator(it);
+    if(record.data)
+        free(record.data);
 
     return 0;
 }

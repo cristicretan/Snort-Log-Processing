@@ -213,8 +213,6 @@ static void extradata_dump(u2record *record) {
         *(uint32_t*)field = ntohl(*(uint32_t*)field);
     }
 
-
-
     printf("\n(ExtraDataHdr)\n"
             "\tevent type: %u\tevent length: %u\n",
             eventHdr.event_type, eventHdr.event_length);
