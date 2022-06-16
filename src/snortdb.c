@@ -2,7 +2,7 @@
 * @Author: Cristi Cretan
 * @Date:   2022-03-26 16:52:22
 * @Last Modified by:   Cristi Cretan
-* @Last Modified time: 2022-06-05 15:31:00
+* @Last Modified time: 2022-06-13 13:59:15
 */
 #include "snortdb.h"
 #include <string.h>
@@ -49,7 +49,7 @@ int get_record(u2iterator *it, u2record *record) {
     record->type= ntohl(record->type);
     record->length= ntohl(record->length);
 
-    if(record->type == UNIFIED2_PACKET) record->length+=4;
+    // if(record->type == UNIFIED2_PACKET) record->length+=4;
 
     if(bytes_read == 0)
        /* EOF */
@@ -247,7 +247,6 @@ static void event2_to_db(u2record *record, MYSQL *con)
 
 static void event3_to_db(u2record *record, MYSQL *con)
 {
-    printf("event3_to_db\n");
     uint8_t *field;
     int i;
 
@@ -290,8 +289,6 @@ static void event3_to_db(u2record *record, MYSQL *con)
         last_event_id = atoi(row[0]);
         mysql_free_result(result);
     }
-
-    printf("dport_icode = %u\n", event.dport_icode);
 
     memset(query, 0, QUERY_LEN);
 
@@ -520,20 +517,20 @@ static void event3_6_to_db(u2record *record, MYSQL *con)
 
     char query[QUERY_LEN];
 
-    if (last_event_id != 1) {
-        if (mysql_query(con, "SELECT MAX(Pk_Event_Id) from snortdb.events")) {
-            finish_with_error(con);
-        }
+    if (mysql_query(con, "SELECT MAX(Pk_Event_Id) from snortdb.events")) {
+        finish_with_error(con);
+    }
 
-        MYSQL_RES *result = mysql_store_result(con);
+    MYSQL_RES *result = mysql_store_result(con);
 
-        if (result == NULL) {
-            finish_with_error(con);
-        }
-
+    if (result == NULL) {
+        // finish_with_error(con);
+        last_event_id = 1;
+    } else {
         MYSQL_ROW row = mysql_fetch_row(result);
         last_event_id = atoi(row[0]);
         mysql_free_result(result);
+        printf("here\n");
     }
 
     memset(query, 0, QUERY_LEN);

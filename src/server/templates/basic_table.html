@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block content %}
+  <table id="data" class="table table-striped table-condensed table-hover table-bordered table-hideable">
+    <thead>
+      <tr>
+        <th>
+          Event Id
+          <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>
+          </button>
+        </th>
+        <th class="hide-col">
+        Event Second
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Event Microsecond
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Signature Id
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Generator Id
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Signature Revision
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Classification Id
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Priority Id
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Ip Destination
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Ip Source
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Port Source
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Port Destination
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Protocol
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Impact Flag
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Blocked
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        MPLS Label
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        vlanId
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        Pad2
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+        <th>
+        App Name
+        <button class="pull-right btn btn-default btn-condensed hide-column" data-toggle="tooltip" data-placement="bottom" title="Hide Column">
+          <i class="fa fa-eye-slash"></i>  
+        </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+        <tr>
+          <td>{{ event.event_id }}</td>
+          <td>{{ event.event_second }}</td>
+          <td>{{ event.event_microsecond }}</td>
+          <td>{{ event.signature_id }}</td>
+          <td>{{ event.generator_id }}</td>
+          <td>{{ event.signature_revision }}</td>
+          <td>{{ event.classification_id }}</td>
+          <td>{{ event.priority_id }}</td>
+          <td>{{ event.ip_destination }}</td>
+          <td>{{ event.ip_source }}</td>
+          <td>{{ event.sport_itype }}</td>
+          <td>{{ event.dport_itype }}</td>
+          <td>{{ event.protocol }}</td>
+          <td>{{ event.impact_flag }}</td>
+          <td>{{ event.blocked }}</td>
+          <td>{{ event.mpls_label }}</td>
+          <td>{{ event.vlanId }}</td>
+          <td>{{ event.pad2 }}</td>
+          <td>{{ event.app_name }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="footer-restore-columns">
+    <tr>
+      <th colspan="4"><a class="restore-columns" href="#">Some columns hidden - click to show all</a></th>
+    </tr>
+  </tfoot>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+      $(function() {
+      // on init
+      $(".table-hideable .hide-col").each(HideColumnIndex);
+
+      // on click
+      $('.hide-column').click(HideColumnIndex)
+
+      function HideColumnIndex() {
+        console.log("here\n");
+        var $el = $(this);
+        var $cell = $el.closest('th,td');
+        // var $table = $cell.closest('table');
+
+        // get cell location - https://stackoverflow.com/a/4999018/1366033
+        var colIndex = $cell[0].cellIndex + 1;
+
+        console.log("colindex is ");
+        console.log(colIndex);
+
+        // find and hide col index
+        $(".table-hideable").find("tbody tr, thead tr")
+          .children(":nth-child(" + colIndex + ")")
+          .addClass('hide-col');
+          
+        // show restore footer
+        $(".table-hideable").find(".footer-restore-columns").show()
+      }
+
+      // restore columns footer
+      $(".restore-columns").click(function(e) {
+        // var $table = $(this).closest('table')
+        $(".table-hideable").find(".footer-restore-columns").hide()
+        $(".table-hideable").find("th, td")
+          .removeClass('hide-col');
+
+      })
+
+      $('[data-toggle="tooltip"]').tooltip({
+        trigger: 'hover'
+      })
+
+    })
+    </script>
+  <script>
+    $(document).ready(function () {
+      $('#data').DataTable({
+        columns: [
+          {data: 'id'},
+          {data: 'date', "render": function(data) {
+            var date = new Date(data * 1000);
+            console.log(date);
+            return date.getDate() + "-" + date.getMonth()+"-"+date.getFullYear();
+          }},
+          {data: 'second date'},
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null],
+      });
+    });
+  </script>
+{% endblock %}
