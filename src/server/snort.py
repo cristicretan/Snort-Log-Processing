@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, MetaData, Table
 app = Flask(__name__, template_folder='templates')
 
 user = 'root'
-password = '11jk13unQ1$'
+password = 'Sn0rt4TheMasses'
 host = 'localhost'
 port = 3306
 database = 'snortdb'
@@ -31,4 +31,4 @@ def execute():
 		events_data = db.query(events)
 		return render_template('basic_table.html', title='Events Table', events=events_data)
 
-app.run(host='localhost', port=5000)
+app.run(host='141.85.227.139', port=5000)

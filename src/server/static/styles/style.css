@@ -16,11 +16,5 @@ body {
 
 /* use class to have a little animation */
 .hide-col {
-  width: 0px !important;
-  height: 0px !important;
-  display: block !important;
-  overflow: hidden !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
+  display: none;
 }
