@@ -206,7 +206,7 @@
     $(document).ready(function () {
       $('#data').DataTable({
         columns: [
-          {data: 'id', orderable: false},
+          {data: 'id', orderable: true},
           {data: 'date', "render": function(data) {
             console.log(data);
             var arr = data.split(/\s+/);
@@ -216,23 +216,22 @@
             return date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear() + " "
             + time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
           }, orderable: false},
-          // {data: 'second date', orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false},
-          {orderable: false}],
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true},
+          {orderable: true}],
       });
     });
   </script>
