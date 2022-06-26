@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     	finish_with_error(con);
     }
 
-    if (mysql_real_connect(con, "localhost", "root", "Sn0rt4TheMasses", "snortdb", 0, NULL, 0) == NULL) {
+    if (mysql_real_connect(con, "localhost", "root", "11jk13unQ1$", "snortdb", 0, NULL, 0) == NULL) {
     	finish_with_error(con);
     }
 

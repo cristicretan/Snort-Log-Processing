@@ -2,7 +2,7 @@
 * @Author: Cristi Cretan
 * @Date:   2022-03-26 16:52:22
 * @Last Modified by:   Cristi Cretan
-* @Last Modified time: 2022-06-13 13:59:15
+* @Last Modified time: 2022-06-26 00:26:10
 */
 #include "snortdb.h"
 #include <string.h>
@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define QUERY_LEN 4096+512
+#define QUERY_LEN 4096+4096
 #define TO_IP(x) x >> 24, (x >> 16) & 0xff, (x >> 8) & 0xff, x & 0xff
 #define IT_OR_NULL(x) strlen(x) == 0 ? "NULL" : x
 // #define IT_OR_ZERO(x) x == NULL ? 0 : x
@@ -26,7 +26,6 @@ int fd;
 
 int my_read(void *buf, int size, int fd)
 {
-	uint32_t bytes_read;
 	uint32_t offset = 0;
 	while (s_pos + size > finfo.st_size) {
 		sleep(1);
@@ -560,8 +559,8 @@ static void event3_6_to_db(u2record *record, MYSQL *con)
 
 static void packet_to_db(u2record *record, MYSQL *con)
 {
-    char packet_buf[BUFLEN];
-    char hex_buf[BUFLEN];
+    char *packet_buf;
+    char *hex_buf;
     uint32_t counter;
     uint8_t *field;
 
@@ -592,6 +591,16 @@ static void packet_to_db(u2record *record, MYSQL *con)
         }
     }
 
+    packet_buf = calloc(sizeof(char), reclen + BUFLEN);
+
+    if (!packet_buf)
+        return;
+
+    hex_buf = calloc(sizeof(char), reclen + BUFLEN);
+
+    if (!hex_buf)
+        return;
+
     memcpy(packet_buf, record->data+offset, reclen);
 
     char *pout = hex_buf;
@@ -613,6 +622,7 @@ static void packet_to_db(u2record *record, MYSQL *con)
     if (mysql_query(con, query)) {
         finish_with_error(con);
     }
+    memset(query, 0, QUERY_LEN);
 
     sprintf(query, "INSERT INTO blob_packets(packet_data, packets_Pk_Packet_Id) "
                 "VALUES (x'%s', %lu);", hex_buf, last_event_id);
@@ -620,6 +630,9 @@ static void packet_to_db(u2record *record, MYSQL *con)
     if (mysql_query(con, query)) {
         finish_with_error(con);
     }
+
+    free(packet_buf);
+    free(hex_buf);
 
     return;
 }
